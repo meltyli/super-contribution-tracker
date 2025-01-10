@@ -136,3 +136,34 @@ body {
     vertical-align: middle;
     border-radius: 3px;
 }
+
+/* Year Selector Styles */
+#yearSelector {
+    padding: 5px;
+    margin: 5px;
+    min-width: 100px;
+}
+
+/* Analysis Table Styles */
+#analysis .positive {
+    color: #4CAF50;
+}
+
+#analysis .negative {
+    color: #f44336;
+}
+
+/* Update the analysis table styles */
+#analysis table {
+    margin: 15px 0;
+}
+
+#analysis th {
+    background-color: #f5f5f5;
+    padding: 10px;
+    text-align: left;
+}
+
+#analysis tr:hover {
+    background-color: #f8f8f8;
+}

@@ -3,21 +3,50 @@ let contributionData = {};
 let paymentCycle = "";
 let annualIncome = 0;
 let superRate = 11.0;
+let selectedYear = new Date().getFullYear();
+let yearData = {};
 
 function importData() {
     const dataInput = document.getElementById('dataInput').value;
     try {
         const data = JSON.parse(dataInput);
-        if (data.dates && data.amounts && data.dates.length === data.amounts.length) {
-            contributionData = {};
-            data.dates.forEach((date, index) => {
-                contributionData[date] = data.amounts[index];
-            });
+        // New format validation
+        if (Array.isArray(data) && data.every(item =>
+            item.date && // ISO date string
+            typeof item.amount === 'number' &&
+            (!item.type || typeof item.type === 'string')
+        )) {
+            yearData = data.reduce((acc, item) => {
+                const date = new Date(item.date);
+                const year = date.getFullYear();
+                if (!acc[year]) acc[year] = {};
+
+                // Format: DD.MM
+                const dateKey = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                acc[year][dateKey] = item.amount;
+                return acc;
+            }, {});
+
+            // Update contributionData for current year
+            contributionData = yearData[selectedYear] || {};
             updateCalendar();
             updateAnalysis();
+
+            // Update year selector options
+            updateYearSelector();
+        } else {
+            throw new Error('Invalid data structure');
         }
     } catch (e) {
-        alert('Invalid data format. Please use the sample format shown.');
+        alert(`Invalid data format. Please use the format:
+[
+    {
+        "date": "2024-01-15",
+        "amount": 550.00,
+        "type": "employer" // optional
+    },
+    ...
+]`);
     }
 }
 
@@ -43,11 +72,53 @@ function getExpectedContribution(cycle) {
     return cycles[cycle] ? annualSuper / cycles[cycle] : 0;
 }
 
+function updateYearSelector() {
+    const yearSelector = document.getElementById('yearSelector');
+    const years = Object.keys(yearData).sort();
+    
+    yearSelector.innerHTML = years.map(year => 
+        `<option value="${year}" ${year == selectedYear ? 'selected' : ''}>${year}</option>`
+    ).join('');
+}
+
+function changeYear(year) {
+    selectedYear = parseInt(year);
+    contributionData = yearData[selectedYear] || {};
+    updateCalendar();
+    updateAnalysis();
+}
+
+function saveSettings() {
+    const settings = {
+        annualIncome,
+        superRate,
+        paymentCycle,
+        selectedYear
+    };
+    localStorage.setItem('superAnalyzerSettings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+    const settings = JSON.parse(localStorage.getItem('superAnalyzerSettings'));
+    if (settings) {
+        annualIncome = settings.annualIncome;
+        superRate = settings.superRate;
+        paymentCycle = settings.paymentCycle;
+        selectedYear = settings.selectedYear || new Date().getFullYear();
+        
+        // Update UI
+        document.getElementById('annualIncome').value = annualIncome;
+        document.getElementById('superRate').value = superRate;
+        document.getElementById('paymentCycle').value = paymentCycle;
+        document.getElementById('yearSelector').value = selectedYear;
+    }
+}
+
 function updateAnalysis() {
     const analysis = document.getElementById('analysis');
     const expected = getExpectedContribution(paymentCycle);
     const total = Object.values(contributionData).reduce((sum, val) => sum + val, 0);
-    
+
     let html = `<h3>Analysis</h3>
                <p>Annual Income: $${annualIncome.toLocaleString()}</p>
                <p>Super Rate: ${superRate}%</p>
@@ -58,20 +129,20 @@ function updateAnalysis() {
     // Monthly breakdown
     html += '<h4>Monthly Analysis</h4><table>';
     html += '<tr><th>Month</th><th>Total</th><th>Expected</th><th>Variance</th></tr>';
-    
+
     let monthlyTotals = {};
-    
+
     Object.entries(contributionData).forEach(([date, amount]) => {
         const [day, month] = date.split('.');
         monthlyTotals[month] = (monthlyTotals[month] || 0) + amount;
     });
 
     Object.entries(monthlyTotals).sort().forEach(([month, total]) => {
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                          'July', 'August', 'September', 'October', 'November', 'December'];
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'];
         const expectedMonthly = annualIncome * superRate / 100 / 12;
         const variance = total - expectedMonthly;
-        
+
         html += `<tr>
             <td>${monthNames[parseInt(month) - 1]}</td>
             <td>$${total.toFixed(2)}</td>
@@ -81,8 +152,33 @@ function updateAnalysis() {
             </td>
         </tr>`;
     });
+
+    const years = Object.keys(yearData).sort();
+    if (years.length > 1) {
+        html += '<h4>Year-over-Year Comparison</h4><table>';
+        html += '<tr><th>Year</th><th>Total Contributions</th><th>Expected</th><th>Variance</th></tr>';
+        
+        years.forEach(year => {
+            const yearContributions = Object.values(yearData[year] || {}).reduce((sum, val) => sum + val, 0);
+            const expectedAnnual = annualIncome * superRate / 100;
+            const variance = yearContributions - expectedAnnual;
+            
+            html += `<tr>
+                <td>${year}</td>
+                <td>$${yearContributions.toFixed(2)}</td>
+                <td>$${expectedAnnual.toFixed(2)}</td>
+                <td class="${variance >= 0 ? 'positive' : 'negative'}">
+                    ${variance > 0 ? '+' : ''}$${variance.toFixed(2)}
+                </td>
+            </tr>`;
+        });
+        
+        html += '</table>';
+    }
+    else {
+        html += '</table>';
+    }
     
-    html += '</table>';
     analysis.innerHTML = html;
 }
 
@@ -104,7 +200,7 @@ function updateCalendar() {
         let currentDate = new Date(year, 0, 1);
         while (currentDate.getFullYear() === year) {
             cycleDates.push(new Date(currentDate));
-            switch(paymentCycle) {
+            switch (paymentCycle) {
                 case 'weekly': currentDate.setDate(currentDate.getDate() + 7); break;
                 case 'biweekly': currentDate.setDate(currentDate.getDate() + 14); break;
                 case 'quadweekly': currentDate.setDate(currentDate.getDate() + 28); break;
@@ -153,11 +249,11 @@ function updateCalendar() {
             dayDiv.textContent = day;
 
             const dateStr = `${day.toString().padStart(2, '0')}.${(month + 1).toString().padStart(2, '0')}`;
-            
+
             if (contributionData[dateStr]) {
                 const amount = contributionData[dateStr];
                 dayDiv.classList.add(amount > 500 ? 'employer-contribution' : 'low-income-benefit');
-                
+
                 const amountDiv = document.createElement('div');
                 amountDiv.className = 'amount';
                 amountDiv.textContent = `$${amount.toFixed(2)}`;
@@ -165,7 +261,7 @@ function updateCalendar() {
             }
 
             const currentDate = new Date(year, month, day);
-            if (cycleDates.some(cycleDate => 
+            if (cycleDates.some(cycleDate =>
                 cycleDate.getDate() === currentDate.getDate() &&
                 cycleDate.getMonth() === currentDate.getMonth()
             )) {
@@ -180,7 +276,7 @@ function updateCalendar() {
     });
 }
 
-// Initialize calendar on load
 document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
     updateCalendar();
 });

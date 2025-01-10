@@ -10,8 +10,20 @@
         
         <div>
             <h3>Import Data</h3>
-            <textarea id="dataInput" rows="4" cols="50" placeholder='{"dates": ["01.01", "15.01"], "amounts": [550, 42.17]}'></textarea>
+
+            <!-- placeholder text -->
+            <textarea id="dataInput" rows="4" cols="50" placeholder='[
+            {"date": "2024-01-15", "amount": 550.00, "type": "employer"},
+            {"date": "2024-01-30", "amount": 42.17}
+            ]'></textarea>
+
             <button onclick="importData()">Import</button>
+            <div>
+                <h3>Year Selection</h3>
+                <select id="yearSelector" onchange="changeYear(this.value)">
+                    <option value="">Select Year</option>
+                </select>
+            </div>
         </div>
 
         <div>
@@ -29,6 +41,7 @@
                 <option value="yearly">Yearly</option>
             </select>
             <button onclick="setPaymentCycle()">Update</button>
+            <button onclick="saveSettings()">Save Settings</button>
         </div>
     </div>
 
