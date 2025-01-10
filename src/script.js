@@ -10,30 +10,48 @@ function importData() {
     const dataInput = document.getElementById('dataInput').value;
     try {
         const data = JSON.parse(dataInput);
-        // New format validation
-        if (Array.isArray(data) && data.every(item =>
-            item.date && // ISO date string
-            typeof item.amount === 'number' &&
-            (!item.type || typeof item.type === 'string')
-        )) {
-            yearData = data.reduce((acc, item) => {
+        // Simplified validation that better handles arrays
+        if (Array.isArray(data) && data.length > 0) {
+            // Validate each entry
+            const isValid = data.every(item => 
+                item.date && 
+                !isNaN(new Date(item.date).getTime()) && // Validates date format
+                typeof item.amount === 'number'
+            );
+
+            if (!isValid) {
+                throw new Error('Invalid data structure');
+            }
+
+            // Clear existing data
+            yearData = {};
+            
+            // Process the data
+            data.forEach(item => {
                 const date = new Date(item.date);
                 const year = date.getFullYear();
-                if (!acc[year]) acc[year] = {};
-
-                // Format: DD.MM
+                if (!yearData[year]) yearData[year] = {};
+                
                 const dateKey = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-                acc[year][dateKey] = item.amount;
-                return acc;
-            }, {});
-
-            // Update contributionData for current year
+                yearData[year][dateKey] = item.amount;
+            });
+            
+            // Update year selector
+            updateYearSelector();
+            
+            // Set selected year to the most recent year in the data
+            const years = Object.keys(yearData).map(Number).sort((a, b) => b - a);
+            if (years.length > 0) {
+                selectedYear = years[0];
+                document.getElementById('yearSelector').value = selectedYear;
+            }
+            
+            // Update contributionData for selected year
             contributionData = yearData[selectedYear] || {};
+            
+            // Update display
             updateCalendar();
             updateAnalysis();
-
-            // Update year selector options
-            updateYearSelector();
         } else {
             throw new Error('Invalid data structure');
         }
@@ -42,10 +60,12 @@ function importData() {
 [
     {
         "date": "2024-01-15",
-        "amount": 550.00,
-        "type": "employer" // optional
+        "amount": 550.00
     },
-    ...
+    {
+        "date": "2024-01-30",
+        "amount": 42.17
+    }
 ]`);
     }
 }
@@ -74,7 +94,7 @@ function getExpectedContribution(cycle) {
 
 function updateYearSelector() {
     const yearSelector = document.getElementById('yearSelector');
-    const years = Object.keys(yearData).sort();
+    const years = Object.keys(yearData).sort((a, b) => b - a); // Sort descending
     
     yearSelector.innerHTML = years.map(year => 
         `<option value="${year}" ${year == selectedYear ? 'selected' : ''}>${year}</option>`
