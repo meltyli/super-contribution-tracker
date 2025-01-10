@@ -1,0 +1,138 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.controls {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+}
+
+.controls input,
+.controls select {
+    margin: 5px;
+    padding: 5px;
+}
+
+.controls button {
+    margin: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+/* Calendar Layout */
+.calendar-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, auto);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.month {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.month-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+    padding: 5px;
+    background: #f8f8f8;
+    border-radius: 3px;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    gap: 2px;
+}
+
+.day {
+    padding: 5px;
+    border: 1px solid #eee;
+    position: relative;
+    min-height: 30px;
+}
+
+/* Contribution Types */
+.employer-contribution {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.low-income-benefit {
+    background-color: #FF9800;
+    color: white;
+}
+
+.payment-cycle {
+    border: 2px solid #2196F3;
+    background-color: #E3F2FD;
+}
+
+.amount {
+    font-size: 10px;
+    position: absolute;
+    bottom: 2px;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+/* Analysis Section */
+#analysis table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#analysis td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+#analysis tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Legend */
+.legend {
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    background: #f5f5f5;
+    border-radius: 5px;
+}
+
+.legend-item {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    vertical-align: middle;
+    border-radius: 3px;
+}
