@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            .calendar-container {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .month {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .month-title {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            .weekdays {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+            .weekdays div {
+                width: 14.28%;
+                text-align: center;
+            }
+            .days {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .day {
+                width: 14.28%;
+                height: 50px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border: 1px solid #ccc;
+                position: relative;
+            }
+            .highlight-thursday {
+                background-color: #90CAF9;
+                font-weight: bold;
+            }
+            .employer-contribution {
+                background-color: #4CAF50;
+                font-weight: bold;
+            }
+            .low-income-benefit {
+                background-color: #FF9800;
+                font-weight: bold;
+            }
+            .amount {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                background-color: rgba(255, 255, 255, 0.8);
+                padding: 2px 5px;
+                border-radius: 5px;
+            }
+            h1 {
+                text-align: center;
+            }
+            .legend {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+            }
+            .legend-item {
+                display: flex;
+                margin-right: 20px;
+            }
+            .legend-color {
+                width: 20px;
+                height: 20px;
+                margin-right: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Super Contributions Calendar 2024</h1>
+        <div class="calendar-container" id="calendar"></div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4CAF50"></div>
+                <div class="legend-text">Employer Contributions</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF9800"></div>
+                <div class="legend-text">Low Income Benefits</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #90CAF9"></div>
+                <div class="legend-text">Every Second Thursday</div>
+            </div>
+        </div>
+
+        <script>
+            const contributionData = {
+                "01.01": 200,
+                "15.02": 53.84
+            };
+
+            function isEverySecondTHursday(date) {
+                const targetDate - new Date(2025, 0, 9);
+                if (date.getDay() !== 4) return false;
+                const diffTime = targetDate.getTime() - date.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const diffThursdays = Math.floor(diffDays / 7);
+                return diffThursdays % 2 === 0;
+            }
+
+            function createCalendar() {
+                const months = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+                const container = document.getElementById("calendar");
+
+                for (let year = 2024; year <= 2024; year ++) {
+                    for (let month = 0; month <12; month++) {
+                        const monthDiv = document.createElement("div");
+                        monthDiv.className = "month";
+
+                        const monthTitle = document.createElement("h2");
+                        monthTitle.className = "month-title";
+                        monthTitle.textContent = `${months[month]} ${year}`;
+                        monthDiv.appendChild(monthTitle);
+
+                        const weekdays = document.createElement("div");
+                        weekdays.classname = "weekdays";
+                        "sun,Mon,Tue,Wed,Thu,Fri,Sat".split(",").forEach(day => {
+                            const dayDiv = document.createElement("div");
+                            dayDiv.textContent = day;
+                            weekdays.appendChild(dayDiv);
+                        });
+                        monthDiv.appendChild(weekdays);
+
+                        const daysDiv = document.createElement("div");
+                        daysDiv.className = "days";
+
+                        const firstDay = new Date(year, month, 1);
+                        const lastDay = new Date(year, month + 1, 0);
+
+                        for (let day = 1; day <= lastDay.getDate(); day++) {
+                            const emptyDay = document.createElement("div");
+                            emptyDay.className = "day";
+                            daysDiv.appendChild(emptyDay);
+                        }
+
+                        for (let day = 1; day <= lastDay.getDate(); day++) {
+                            const dayDiv = document.createElement("div");
+                            dayDiv.className = "day";
+                            dayDiv.textContent = day;
+
+                            const currentDate = new Date(year, month, day);
+                            const dateStr = `${day.toString().padStart(2, "0")}.${(month + 1).toString().padStart(2, "0")}`;
+
+                            if (contributionData[dateStr]) {
+                                const amount = contributionDates[dateStr];
+                                if (amount > 500) {
+                                    dayDiv.classList.add("employer-contribution");
+                                } else {
+                                    dayDiv.classList.add("low-income-benefit");
+                                }
+                                const amountDiv = document.createElement("div");
+                                amountDiv.className = "amount";
+                                amountDiv.textContent = `$${amount}`;
+                            }
+
+                            if (isEverySecondThursday(currentDate)) {
+                                dayDiv.classList.add("every-second-thursday");
+                            }
+
+                            daysDiv.appendChild(dayDiv);
+                        }
+
+                        monthDiv.appendChild(daysDiv);
+                        container.appendChild(monthDiv);
+                    }
+                }
+            }
+
+            createCalendar();
+        </script>
+    </body>
+</html>
