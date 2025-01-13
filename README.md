@@ -1,2 +1,7 @@
-# super-contribution-tracker
-helping me track my super contributions by my employer, supports exports by unisuper for now
+# super-contribution-visualiser
+
+# SCV
+helping me track and analyse my super contributions by my employer, supports imports by json
+
+# Roadmap
+support unisuper data import
