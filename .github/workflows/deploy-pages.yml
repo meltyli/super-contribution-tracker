@@ -1,8 +1,10 @@
 name: Deploy static content to Pages
-
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+    paths:
+      - 'src/**'
   workflow_dispatch:
 
 permissions:
@@ -23,22 +25,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+        
       - name: Prepare docs directory
         run: |
           rm -rf docs
           mkdir docs
           cp -r src/* docs/
-          ls docs  # Optional: List contents of docs for verification
-
+          # Create .nojekyll file to bypass Jekyll processing
+          touch docs/.nojekyll
+          
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'docs'
-
+          
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
