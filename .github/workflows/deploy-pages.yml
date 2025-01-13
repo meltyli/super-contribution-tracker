@@ -25,14 +25,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Prepare docs directory
         run: |
           rm -rf docs
           mkdir docs
           cp -r src/* docs/
-          # Create .nojekyll file to bypass Jekyll processing
+          # Create both .nojekyll and CNAME files
           touch docs/.nojekyll
+          echo "mydomain.dev" > docs/CNAME
           
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -41,7 +42,3 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'docs'
-          
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
