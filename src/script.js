@@ -212,7 +212,7 @@ function updateCalendar() {
         "September", "October", "November", "December"
     ];
 
-    const year = new Date().getFullYear();
+    const year = selectedYear; // Ensure the selected year is used
 
     // Calculate payment cycle dates
     let cycleDates = [];
@@ -253,10 +253,10 @@ function updateCalendar() {
         const daysDiv = document.createElement('div');
         daysDiv.className = 'days';
 
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
+        const firstDay = new Date(year, month, 1); // First day of the month
+        const lastDay = new Date(year, month + 1, 0); // Last day of the month
 
-        // Add empty cells for days before the first day of month
+        // Add empty cells for days before the first day of the month
         for (let i = 0; i < firstDay.getDay(); i++) {
             const emptyDay = document.createElement('div');
             emptyDay.className = 'day';
