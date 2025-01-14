@@ -201,7 +201,6 @@ function updateAnalysis() {
     
     analysis.innerHTML = html;
 }
-
 function updateCalendar() {
     const container = document.getElementById('calendar');
     container.innerHTML = '';
@@ -214,7 +213,94 @@ function updateCalendar() {
 
     const year = selectedYear; // Ensure the selected year is used
 
-    // Calculate payment cycle dates
+    const cycleDates = calculateCycleDates(year, paymentCycle);
+
+    months.forEach((monthName, month) => {
+        const monthDiv = createMonthDiv(monthName, year, month, cycleDates);
+        container.appendChild(monthDiv);
+    });
+}
+
+function createMonthDiv(monthName, year, month, cycleDates) {
+    const monthDiv = document.createElement('div');
+    monthDiv.className = 'month';
+
+    const monthTitle = createMonthTitle(monthName, year);
+    monthDiv.appendChild(monthTitle);
+
+    const weekdays = createWeekdaysHeader();
+    monthDiv.appendChild(weekdays);
+
+    const daysDiv = createDaysDiv(year, month, cycleDates);
+    monthDiv.appendChild(daysDiv);
+
+    return monthDiv;
+}
+
+function createMonthTitle(monthName, year) {
+    const monthTitle = document.createElement('div');
+    monthTitle.className = 'month-title';
+    monthTitle.textContent = `${monthName} ${year}`;
+    return monthTitle;
+}
+
+function createWeekdaysHeader() {
+    const weekdays = document.createElement('div');
+    weekdays.className = 'weekdays';
+    'Sun,Mon,Tue,Wed,Thu,Fri,Sat'.split(',').forEach(day => {
+        const dayDiv = document.createElement('div');
+        dayDiv.textContent = day;
+        weekdays.appendChild(dayDiv);
+    });
+    return weekdays;
+}
+
+function createDaysDiv(year, month, cycleDates) {
+    const daysDiv = document.createElement('div');
+    daysDiv.className = 'days';
+
+    const firstDay = new Date(year, month, 1); // First day of the month
+    const lastDay = new Date(year, month + 1, 0); // Last day of the month
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'day';
+        daysDiv.appendChild(emptyDay);
+    }
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'day';
+        dayDiv.textContent = day;
+
+        const dateStr = `${day.toString().padStart(2, '0')}.${(month + 1).toString().padStart(2, '0')}`;
+
+        if (contributionData[dateStr]) {
+            const amount = contributionData[dateStr];
+            dayDiv.classList.add(amount > 500 ? 'employer-contribution' : 'low-income-benefit');
+
+            const amountDiv = document.createElement('div');
+            amountDiv.className = 'amount';
+            amountDiv.textContent = `$${amount.toFixed(2)}`;
+            dayDiv.appendChild(amountDiv);
+        }
+
+        const currentDate = new Date(year, month, day);
+        if (cycleDates.some(cycleDate =>
+            cycleDate.getDate() === currentDate.getDate() &&
+            cycleDate.getMonth() === currentDate.getMonth()
+        )) {
+            dayDiv.classList.add('payment-cycle');
+        }
+
+        daysDiv.appendChild(dayDiv);
+    }
+
+    return daysDiv;
+}
+
+function calculateCycleDates(year, paymentCycle) {
     let cycleDates = [];
     if (paymentCycle) {
         let currentDate = new Date(year, 0, 1);
@@ -231,69 +317,7 @@ function updateCalendar() {
             }
         }
     }
-
-    months.forEach((monthName, month) => {
-        const monthDiv = document.createElement('div');
-        monthDiv.className = 'month';
-
-        const monthTitle = document.createElement('div');
-        monthTitle.className = 'month-title';
-        monthTitle.textContent = `${monthName} ${year}`;
-        monthDiv.appendChild(monthTitle);
-
-        const weekdays = document.createElement('div');
-        weekdays.className = 'weekdays';
-        'Sun,Mon,Tue,Wed,Thu,Fri,Sat'.split(',').forEach(day => {
-            const dayDiv = document.createElement('div');
-            dayDiv.textContent = day;
-            weekdays.appendChild(dayDiv);
-        });
-        monthDiv.appendChild(weekdays);
-
-        const daysDiv = document.createElement('div');
-        daysDiv.className = 'days';
-
-        const firstDay = new Date(year, month, 1); // First day of the month
-        const lastDay = new Date(year, month + 1, 0); // Last day of the month
-
-        // Add empty cells for days before the first day of the month
-        for (let i = 0; i < firstDay.getDay(); i++) {
-            const emptyDay = document.createElement('div');
-            emptyDay.className = 'day';
-            daysDiv.appendChild(emptyDay);
-        }
-
-        for (let day = 1; day <= lastDay.getDate(); day++) {
-            const dayDiv = document.createElement('div');
-            dayDiv.className = 'day';
-            dayDiv.textContent = day;
-
-            const dateStr = `${day.toString().padStart(2, '0')}.${(month + 1).toString().padStart(2, '0')}`;
-
-            if (contributionData[dateStr]) {
-                const amount = contributionData[dateStr];
-                dayDiv.classList.add(amount > 500 ? 'employer-contribution' : 'low-income-benefit');
-
-                const amountDiv = document.createElement('div');
-                amountDiv.className = 'amount';
-                amountDiv.textContent = `$${amount.toFixed(2)}`;
-                dayDiv.appendChild(amountDiv);
-            }
-
-            const currentDate = new Date(year, month, day);
-            if (cycleDates.some(cycleDate =>
-                cycleDate.getDate() === currentDate.getDate() &&
-                cycleDate.getMonth() === currentDate.getMonth()
-            )) {
-                dayDiv.classList.add('payment-cycle');
-            }
-
-            daysDiv.appendChild(dayDiv);
-        }
-
-        monthDiv.appendChild(daysDiv);
-        container.appendChild(monthDiv);
-    });
+    return cycleDates;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
