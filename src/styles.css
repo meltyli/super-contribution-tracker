@@ -5,6 +5,11 @@ body {
     padding: 20px;
 }
 
+.json-format {
+    white-space: pre-wrap;
+    font-family: monospace, 'Courier New', Courier
+}
+
 .controls {
     margin-bottom: 20px;
     padding: 15px;
