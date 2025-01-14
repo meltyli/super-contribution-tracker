@@ -11,11 +11,13 @@
         <div>
             <h3>Import Data</h3>
 
+            <p class="json-format">[
+                {"date": "2024-01-15", "amount": 550.00, "type": "employer"},
+                {"date": "2024-01-30", "amount": 42.17}
+            ]</p>
+
             <!-- placeholder text -->
-            <textarea id="dataInput" rows="4" cols="50" placeholder='[
-            {"date": "2024-01-15", "amount": 550.00, "type": "employer"},
-            {"date": "2024-01-30", "amount": 42.17}
-            ]'></textarea>
+            <textarea id="dataInput" rows="4" cols="50" placeholder='Import in .json format only.'></textarea>
 
             <button onclick="importData()">Import</button>
             <div>
